@@ -1,3 +1,5 @@
+from tkinter import filedialog
+from tkinter.filedialog import FileDialog
 import qrcode as q
 from PIL import Image , ImageTk
 from tkinter import *
@@ -11,9 +13,10 @@ from tkinter import messagebox
 #GUI for the app
 
 root = Tk()
-
-def qr_generator(url):
-    if url == '':
+img = 0
+def qr_generator(urlvar):
+    url = str(urlvar.get())
+    if  url== '':
         messagebox.showwarning("WARNING.!!","The field is required")
     else:
         qr = q.QRCode(
@@ -22,13 +25,23 @@ def qr_generator(url):
             box_size=10,
             border=1
         ) 
+        global img
         qr.add_data(url)
         qr.make(fit =True)
         img = qr.make_image(fill_color = 'black',back_color= 'white')
         img.save('qrcode.png')
         qr_img = ImageTk.PhotoImage(img)
         img_label.config(image=qr_img)
+    urlvar.set('')
     print("success")
+
+def save_qr():
+    if img == 0:
+        messagebox.showerror(title = "QR code didn't create",message  ="try Again")
+    else:
+        path = filedialog.asksaveasfilename(defaultextension = '.png',filetypes= [('PNG File','.png'),('JPEG file','.jpg'),('ALL file','.*')])
+        img.save(path)
+    
 
 # globlal variables
 url_var = StringVar()
@@ -61,8 +74,8 @@ url_label.pack(padx=9,side='left')
 url = Entry(master=U_frame,text = "Enter the url",font=("Segoe UI",10),relief=RIDGE,width = 30,justify= 'left',textvariable = url_var)
 url.pack(ipadx = 10,padx=1,side = 'left')
 
-submit = Button(master = U_frame, text = "Submit",fg = bg_color,bg = "#ffc900",relief='groove',font = ("Segoe UI bold",10,'bold'),
-                command= lambda : qr_generator(str(url_var.get())))
+submit = Button(master = U_frame, text = "Submit",fg = bg_color,bg = "#ffc900",relief='flat',font = ("Segoe UI bold",10,'bold'),
+                command= lambda : qr_generator(url_var))
 submit.pack(side = 'right',padx = 1)
 
 
@@ -76,7 +89,7 @@ img_label = Label(master = Q_frame,width = 300,height = 300,bg = bg_color)
 img_label.pack(padx = 10,pady = 2)
 
 save_button = Button(master=Q_frame, text = "Download",fg = bg_color,bg = "#ffc900",relief='flat',font = ("Segoe UI bold",15,'bold'),
-                width=50,height=12 ,command= None)
+                width=50,height=12 ,command= save_qr)
 save_button.pack(ipadx=12,padx = 5,pady =5)
 
 
